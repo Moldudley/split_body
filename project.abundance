@@ -1,113 +1,113 @@
 {
-  "atomType": "Molecule",
-  "x": 0,
-  "y": 0,
-  "uniqueID": "id-523",
-  "name": "split_body_tool_test",
-  "topLevel": true,
-  "allAtoms": [
-    {
-      "atomType": "Output",
-      "x": 0.98,
-      "y": 0.5,
-      "uniqueID": "id-524",
-      "ioValues": [
+    "atomType": "Molecule",
+    "x": 0,
+    "y": 0,
+    "uniqueID": "id-523",
+    "name": "split_body",
+    "topLevel": true,
+    "allAtoms": [
         {
-          "name": "number or geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        }
-      ]
-    },
-    {
-      "atomType": "Code",
-      "x": 0.40786082474226804,
-      "y": 0.3770949720670391,
-      "uniqueID": "id-526",
-      "ioValues": [
-        {
-          "name": "shape",
-          "ioValue": "__GEOMETRY_INPUT__"
+            "atomType": "Output",
+            "x": 0.98,
+            "y": 0.5,
+            "uniqueID": "id-524",
+            "ioValues": [
+                {
+                    "name": "number or geometry",
+                    "ioValue": "__GEOMETRY_INPUT__"
+                }
+            ]
         },
         {
-          "name": "axis",
-          "ioValue": "Z",
-          "currentEquation": "Z"
+            "atomType": "Code",
+            "x": 0.40786082474226804,
+            "y": 0.3770949720670391,
+            "uniqueID": "id-526",
+            "ioValues": [
+                {
+                    "name": "shape",
+                    "ioValue": "__GEOMETRY_INPUT__"
+                },
+                {
+                    "name": "axis",
+                    "ioValue": "Z",
+                    "currentEquation": "Z"
+                },
+                {
+                    "name": "offset",
+                    "ioValue": 5
+                }
+            ],
+            "interpreterVersion": 1,
+            "code": "/**\r\n * Splits a solid into two bodies along a plane perpendicular to X, Y, or Z —\r\n * like SolidWorks' Split tool. Returns both resulting bodies.\r\n * offset is the plane's position along the chosen axis, in the shape's own coordinates.\r\n */\r\nfunction run(\r\n  shape: Assembly | undefined = undefined,\r\n  axis: string = \"Z\",\r\n  offset: number = 0,\r\n): Assembly[] {\r\n  if (!shape || !shape.isLeaf() || !shape.is3D()) {\r\n    throw new Error(\"Connect a 3D solid to split.\");\r\n  }\r\n\r\n  const geom = shape.geometry;\r\n  const bbox = geom.boundingBox;\r\n  const [min, max] = bbox.bounds;\r\n\r\n  const axisIndex = { X: 0, Y: 1, Z: 2 }[axis.toUpperCase()];\r\n  if (axisIndex === undefined) {\r\n    throw new Error(`axis must be \"X\", \"Y\", or \"Z\", got \"${axis}\"`);\r\n  }\r\n\r\n  const margin = Math.max(bbox.width, bbox.height, bbox.depth) * 0.1 + 1;\r\n  const paddedMin: [number, number, number] = [\r\n    min[0] - margin,\r\n    min[1] - margin,\r\n    min[2] - margin,\r\n  ];\r\n  const paddedMax: [number, number, number] = [\r\n    max[0] + margin,\r\n    max[1] + margin,\r\n    max[2] + margin,\r\n  ];\r\n\r\n  const lowerBoxMax: [number, number, number] = [...paddedMax];\r\n  lowerBoxMax[axisIndex] = offset;\r\n\r\n  const lowerTool = replicad.makeBox(paddedMin, lowerBoxMax);\r\n\r\n  const lowerPiece = geom.intersect(lowerTool);\r\n  const upperPiece = geom.cut(lowerTool);\r\n\r\n  return [\r\n    new Assembly({\r\n      geometry: lowerPiece,\r\n      color: shape.color,\r\n      tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-lower`],\r\n      bom: [`Split body (${axis.toUpperCase()} < ${offset})`],\r\n    }),\r\n    new Assembly({\r\n      geometry: upperPiece,\r\n      color: shape.color,\r\n      tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-upper`],\r\n      bom: [`Split body (${axis.toUpperCase()} > ${offset})`],\r\n    }),\r\n  ];\r\n}",
+            "compiledCode": "\"use strict\";\n/**\n * Splits a solid into two bodies along a plane perpendicular to X, Y, or Z —\n * like SolidWorks' Split tool. Returns both resulting bodies.\n * offset is the plane's position along the chosen axis, in the shape's own coordinates.\n */\nfunction run(shape = undefined, axis = \"Z\", offset = 0) {\n    if (!shape || !shape.isLeaf() || !shape.is3D()) {\n        throw new Error(\"Connect a 3D solid to split.\");\n    }\n    const geom = shape.geometry;\n    const bbox = geom.boundingBox;\n    const [min, max] = bbox.bounds;\n    const axisIndex = { X: 0, Y: 1, Z: 2 }[axis.toUpperCase()];\n    if (axisIndex === undefined) {\n        throw new Error(`axis must be \"X\", \"Y\", or \"Z\", got \"${axis}\"`);\n    }\n    const margin = Math.max(bbox.width, bbox.height, bbox.depth) * 0.1 + 1;\n    const paddedMin = [\n        min[0] - margin,\n        min[1] - margin,\n        min[2] - margin,\n    ];\n    const paddedMax = [\n        max[0] + margin,\n        max[1] + margin,\n        max[2] + margin,\n    ];\n    const lowerBoxMax = [...paddedMax];\n    lowerBoxMax[axisIndex] = offset;\n    const lowerTool = replicad.makeBox(paddedMin, lowerBoxMax);\n    const lowerPiece = geom.intersect(lowerTool);\n    const upperPiece = geom.cut(lowerTool);\n    return [\n        new Assembly({\n            geometry: lowerPiece,\n            color: shape.color,\n            tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-lower`],\n            bom: [`Split body (${axis.toUpperCase()} < ${offset})`],\n        }),\n        new Assembly({\n            geometry: upperPiece,\n            color: shape.color,\n            tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-upper`],\n            bom: [`Split body (${axis.toUpperCase()} > ${offset})`],\n        }),\n    ];\n}\n"
         },
         {
-          "name": "offset",
-          "ioValue": 5
-        }
-      ],
-      "interpreterVersion": 1,
-      "code": "/**\r\n * Splits a solid into two bodies along a plane perpendicular to X, Y, or Z —\r\n * like SolidWorks' Split tool. Returns both resulting bodies.\r\n * offset is the plane's position along the chosen axis, in the shape's own coordinates.\r\n */\r\nfunction run(\r\n  shape: Assembly | undefined = undefined,\r\n  axis: string = \"Z\",\r\n  offset: number = 0,\r\n): Assembly[] {\r\n  if (!shape || !shape.isLeaf() || !shape.is3D()) {\r\n    throw new Error(\"Connect a 3D solid to split.\");\r\n  }\r\n\r\n  const geom = shape.geometry;\r\n  const bbox = geom.boundingBox;\r\n  const [min, max] = bbox.bounds;\r\n\r\n  const axisIndex = { X: 0, Y: 1, Z: 2 }[axis.toUpperCase()];\r\n  if (axisIndex === undefined) {\r\n    throw new Error(`axis must be \"X\", \"Y\", or \"Z\", got \"${axis}\"`);\r\n  }\r\n\r\n  const margin = Math.max(bbox.width, bbox.height, bbox.depth) * 0.1 + 1;\r\n  const paddedMin: [number, number, number] = [\r\n    min[0] - margin,\r\n    min[1] - margin,\r\n    min[2] - margin,\r\n  ];\r\n  const paddedMax: [number, number, number] = [\r\n    max[0] + margin,\r\n    max[1] + margin,\r\n    max[2] + margin,\r\n  ];\r\n\r\n  const lowerBoxMax: [number, number, number] = [...paddedMax];\r\n  lowerBoxMax[axisIndex] = offset;\r\n\r\n  const lowerTool = replicad.makeBox(paddedMin, lowerBoxMax);\r\n\r\n  const lowerPiece = geom.intersect(lowerTool);\r\n  const upperPiece = geom.cut(lowerTool);\r\n\r\n  return [\r\n    new Assembly({\r\n      geometry: lowerPiece,\r\n      color: shape.color,\r\n      tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-lower`],\r\n      bom: [`Split body (${axis.toUpperCase()} < ${offset})`],\r\n    }),\r\n    new Assembly({\r\n      geometry: upperPiece,\r\n      color: shape.color,\r\n      tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-upper`],\r\n      bom: [`Split body (${axis.toUpperCase()} > ${offset})`],\r\n    }),\r\n  ];\r\n}",
-      "compiledCode": "\"use strict\";\n/**\n * Splits a solid into two bodies along a plane perpendicular to X, Y, or Z —\n * like SolidWorks' Split tool. Returns both resulting bodies.\n * offset is the plane's position along the chosen axis, in the shape's own coordinates.\n */\nfunction run(shape = undefined, axis = \"Z\", offset = 0) {\n    if (!shape || !shape.isLeaf() || !shape.is3D()) {\n        throw new Error(\"Connect a 3D solid to split.\");\n    }\n    const geom = shape.geometry;\n    const bbox = geom.boundingBox;\n    const [min, max] = bbox.bounds;\n    const axisIndex = { X: 0, Y: 1, Z: 2 }[axis.toUpperCase()];\n    if (axisIndex === undefined) {\n        throw new Error(`axis must be \"X\", \"Y\", or \"Z\", got \"${axis}\"`);\n    }\n    const margin = Math.max(bbox.width, bbox.height, bbox.depth) * 0.1 + 1;\n    const paddedMin = [\n        min[0] - margin,\n        min[1] - margin,\n        min[2] - margin,\n    ];\n    const paddedMax = [\n        max[0] + margin,\n        max[1] + margin,\n        max[2] + margin,\n    ];\n    const lowerBoxMax = [...paddedMax];\n    lowerBoxMax[axisIndex] = offset;\n    const lowerTool = replicad.makeBox(paddedMin, lowerBoxMax);\n    const lowerPiece = geom.intersect(lowerTool);\n    const upperPiece = geom.cut(lowerTool);\n    return [\n        new Assembly({\n            geometry: lowerPiece,\n            color: shape.color,\n            tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-lower`],\n            bom: [`Split body (${axis.toUpperCase()} < ${offset})`],\n        }),\n        new Assembly({\n            geometry: upperPiece,\n            color: shape.color,\n            tags: [...shape.tags, \"split\", `${axis.toUpperCase()}-upper`],\n            bom: [`Split body (${axis.toUpperCase()} > ${offset})`],\n        }),\n    ];\n}\n"
-    },
-    {
-      "atomType": "Circle",
-      "x": 0.14561855670103094,
-      "y": 0.4329608938547486,
-      "uniqueID": "id-538",
-      "ioValues": [
-        {
-          "name": "diameter",
-          "ioValue": 10
-        }
-      ]
-    },
-    {
-      "atomType": "Extrude",
-      "x": 0.26804123711340205,
-      "y": 0.4636871508379888,
-      "uniqueID": "id-541",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
+            "atomType": "Circle",
+            "x": 0.14561855670103094,
+            "y": 0.4329608938547486,
+            "uniqueID": "id-538",
+            "ioValues": [
+                {
+                    "name": "diameter",
+                    "ioValue": 10
+                }
+            ]
         },
         {
-          "name": "height",
-          "ioValue": 10
-        }
-      ]
-    },
-    {
-      "atomType": "ExtractTag",
-      "x": 0.5438144329896908,
-      "y": 0.22309711286089237,
-      "uniqueID": "id-545",
-      "name": "Extract Z-lower",
-      "ioValues": [
+            "atomType": "Extrude",
+            "x": 0.26804123711340205,
+            "y": 0.4636871508379888,
+            "uniqueID": "id-541",
+            "ioValues": [
+                {
+                    "name": "geometry",
+                    "ioValue": "__GEOMETRY_INPUT__"
+                },
+                {
+                    "name": "height",
+                    "ioValue": 10
+                }
+            ]
+        },
         {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
+            "atomType": "ExtractTag",
+            "x": 0.5438144329896908,
+            "y": 0.22309711286089237,
+            "uniqueID": "id-545",
+            "name": "Extract Z-lower",
+            "ioValues": [
+                {
+                    "name": "geometry",
+                    "ioValue": "__GEOMETRY_INPUT__"
+                }
+            ],
+            "tagIndex": 0,
+            "selectedTags": [
+                "Z-lower"
+            ],
+            "includeUntagged": false,
+            "notKeepOut": false
         }
-      ],
-      "tagIndex": 0,
-      "selectedTags": [
-        "Z-lower"
-      ],
-      "includeUntagged": false,
-      "notKeepOut": false
-    }
-  ],
-  "allConnectors": [
-    {
-      "ap2Name": "geometry",
-      "ap1ID": "id-526",
-      "ap2ID": "id-545"
-    },
-    {
-      "ap2Name": "geometry",
-      "ap1ID": "id-538",
-      "ap2ID": "id-541"
-    },
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-541",
-      "ap2ID": "id-526"
-    }
-  ],
-  "unitsKey": "MM",
-  "fileTypeVersion": 1,
-  "filetypeVersion": 1
+    ],
+    "allConnectors": [
+        {
+            "ap2Name": "geometry",
+            "ap1ID": "id-526",
+            "ap2ID": "id-545"
+        },
+        {
+            "ap2Name": "geometry",
+            "ap1ID": "id-538",
+            "ap2ID": "id-541"
+        },
+        {
+            "ap2Name": "shape",
+            "ap1ID": "id-541",
+            "ap2ID": "id-526"
+        }
+    ],
+    "unitsKey": "MM",
+    "fileTypeVersion": 1,
+    "filetypeVersion": 1
 }
