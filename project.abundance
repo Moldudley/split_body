@@ -6,7 +6,7 @@
   "name": "split_body",
   "ioValues": [
     {
-      "name": "body",
+      "name": "geometry",
       "ioValue": 10
     },
     {
@@ -59,9 +59,9 @@
     {
       "atomType": "Input",
       "x": 0.025384615384615384,
-      "y": 0.1443569553805774,
+      "y": 0.15384615384615385,
       "uniqueID": "id-534",
-      "name": "body"
+      "name": "geometry"
     },
     {
       "atomType": "Input",
