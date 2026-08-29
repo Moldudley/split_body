@@ -6,7 +6,7 @@
 
 ## Inputs
 
-- **body** (number)
+- **geometry** (number)
 - **axis** (number)
 - **off_set** (number)
 
