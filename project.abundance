@@ -20,8 +20,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.40979381443298973,
-      "y": 0.441340782122905,
+      "x": 0.40786082474226804,
+      "y": 0.3770949720670391,
       "uniqueID": "id-526",
       "ioValues": [
         {
@@ -69,9 +69,33 @@
           "ioValue": 10
         }
       ]
+    },
+    {
+      "atomType": "ExtractTag",
+      "x": 0.5438144329896908,
+      "y": 0.22309711286089237,
+      "uniqueID": "id-545",
+      "name": "Extract Z-lower",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ],
+      "tagIndex": 0,
+      "selectedTags": [
+        "Z-lower"
+      ],
+      "includeUntagged": false,
+      "notKeepOut": false
     }
   ],
   "allConnectors": [
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-526",
+      "ap2ID": "id-545"
+    },
     {
       "ap2Name": "geometry",
       "ap1ID": "id-538",
