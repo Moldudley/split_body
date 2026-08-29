@@ -4,6 +4,13 @@
 
 ![](/project.svg)
 
+## Inputs
+
+- **body** (number)
+- **axis** (number)
+- **off_set** (number)
+
+
 
 
  
